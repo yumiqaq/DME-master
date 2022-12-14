@@ -185,8 +185,6 @@ class DM:
         U = group.random(G1)
         v = group.random(ZR)
 
-        print("sender's random is:", base64.urlsafe_b64encode(group.serialize(U)[2:]), int(str(v)))
-
         (g, G, G_) = pk
         V = g ** v
         k11 = pair(self.Hr(idr), G ** v)
@@ -230,6 +228,7 @@ class DM:
 
         (g, G, G_) = pk
         u = group.random(ZR)
+        print("sender's random is:", int(str(u)))
         # u = r
         U = g ** u
         k = pair(self.Hr(idr_), G_ ** (group.hash(idr_, ZR) * u))
@@ -301,7 +300,7 @@ class DM:
     def sfake(self, pk, eks, idr_, r):
         (g, G, G_) = pk
         u = r
-        k = pair(self.Hr(idr_), G_ ** (group.hash(idr_, ZR) * u))
+        k = pair(self.Hr(idr_), G_ ** (int(group.hash(idr_, ZR)) * u))
         U = g ** u
         v = self.H1(k)
         eks_ = eks ** self.H1(k ** v)

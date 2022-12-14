@@ -41,12 +41,12 @@ def cli(url, localhost):
         print(f"Using url {api}")
 
 
-@click.command(help="Honestly posts an encrypted message to the bulletin board")
+@click.command(help="Generate a normal ciphertext for the encrypted message and post it to the bulletin board")
 @click.option('--receiver', prompt="Receiver's policy string", help="Receiver's policy string")
 @click.option('--sender', prompt="Sender's encryption key", help="Sender's encryption key")
 @click.option('--message', prompt="Message to send", help="Message to send")
 # Honesty post message to bulletin board
-def hon_post(receiver, sender, message):
+def post(receiver, sender, message):
     eks = DME.deserialize_eks(keys[sender]["ek"])
     # str type message
     # message = input_message.encode()
@@ -64,13 +64,13 @@ def hon_post(receiver, sender, message):
     click.echo(f"Index of the message: {res}")
 
 
-@click.command(help="Dishonestly posts an encrypted message to the bulletin board")
+@click.command(help="Generate a normal ciphertext for the encrypted message and post it to the bulletin board")
 @click.option('--receiver', prompt="Receiver's policy string", help="Receiver's policy string")
 @click.option('--fake_receiver', prompt="Fake receiver's policy string", help="Fake receiver's policy string")
 @click.option('--sender', prompt="Sender's encryption key", help="Sender's encryption key")
 @click.option('--message', prompt="Message to send", help="Message to send")
 @click.option('--fake_message', prompt="Fake message to send", help="Fake message to send")
-def post(receiver, fake_receiver, sender, message, fake_message):
+def de_post(receiver, fake_receiver, sender, message, fake_message):
     # Dishonesty post message to bulletin board
     eks = DME.deserialize_eks(keys[sender]["ek"])
     # str type message
@@ -90,7 +90,7 @@ def post(receiver, fake_receiver, sender, message, fake_message):
     click.echo(f"Index of the message: {res}")
 
 
-@click.command(help="Takes a gander at the bulletin board, without decrypting")
+@click.command(help="Take a gander at the bulletin board, without decrypting")
 def peek():
     res = get_session().get(f'{api}/messages').json()
     for i, message in enumerate(res):
@@ -107,7 +107,7 @@ def decrypt_ciphertext(dk, b64_ctxt, sender, receiver):
     # return padded_message
 
 
-@click.command(help="Honestly reads encrypted messages from the bulletin board")
+@click.command(help="Read encrypted messages from the bulletin board")
 @click.option('--receiver', prompt="Receiver's policy string", help="Receiver's policy string")
 @click.option('--sender', prompt="Sender's attribute string", help="Sender's attribute string")
 def read(receiver, sender):
@@ -129,10 +129,10 @@ def decrypt_fake_ciphertext(dkr_, fkr, b64_ctxt, sender, fake_receiver):
     # return padded_message
 
 
-@click.command(help="Dishonestly reads encrypted messages from the bulletin board")
+@click.command(help="Read fake messages from the bulletin board by using fake decryption key")
 @click.option('--fake_receiver', prompt="Fake receiver's policy string", help="Fake receiver's policy string")
 @click.option('--sender', prompt="Sender's attribute string", help="Sender's attribute string")
-def fake_read(fake_receiver, sender):
+def de_read(fake_receiver, sender):
     dkr_, fkr = DME.deserialize_drgen(base64.urlsafe_b64decode(keys[fake_receiver]["fake dk"]))
     ciphertexts = get_session().get(f'{api}/messages').json()
     for i, b64_ctxt in enumerate(ciphertexts):
@@ -141,22 +141,19 @@ def fake_read(fake_receiver, sender):
             click.echo(f"{i}: {message}")
 
 
-@click.command(help="Generates fake eks and random by sender")
+@click.command(help="Generate a fake encryption key eks and fake random coins for the sender")
 @click.option('--sender', prompt="Sender's attribute string", help="Sender's attribute string")
 @click.option('--fake_receiver', prompt="Fake receiver's policy string", help="Fake receiver's policy string")
-@click.option('--r_U', prompt="U of random r", help="U of random r")
-@click.option('--r_v', prompt="v of random r", help="v of random r")
-def sfake(sender, fake_receiver, r_U, r_v):
+@click.option('--u', prompt="random", help="random")
+def sfake(sender, fake_receiver, u):
     eks = DME.deserialize_eks(keys[sender]["ek"])
-    U = DME.deserialize(r_U)
-    v = int(r_v)
-    r = (U, v)
+    r = int(u)
     eks_, r_ = DME.sfake(pk, eks, fake_receiver, r)
     click.echo(f"fake eks is: {eks_}")
     click.echo(f"fake random is: {r_}")
 
 
-@click.command(help="Generates fake dkr by fake receiver")
+@click.command(help="Generate a fake decryption key dkr for the fake receiver")
 @click.option('--fake_receiver', prompt="Fake receiver's policy string", help="Fake receiver's policy string")
 @click.option('--b64_ctxt', prompt="Ciphertext from bulletin board", help="Ciphertext from bulletin board")
 def rfake(fake_receiver, b64_ctxt):
@@ -168,10 +165,10 @@ def rfake(fake_receiver, b64_ctxt):
 
 
 cli.add_command(post)
+cli.add_command(de_post)
 cli.add_command(peek)
 cli.add_command(read)
-cli.add_command(fake_read)
-cli.add_command(hon_post)
+cli.add_command(de_read)
 cli.add_command(rfake)
 cli.add_command(sfake)
 
