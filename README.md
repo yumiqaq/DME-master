@@ -1,18 +1,20 @@
-# Bulletin Board
+# # The Authenticated and Deniable Anonymous Messaging System via Deniable Matchmaking Encryption 
 
-This repository holds a prototype implementation of a bulletin board hidden service that uses an Identity-Based Matchmaking Encryption (IB-ME) scheme. It allows clients to exchange data over the Tor network in an anonymous way, while having strong guarantees about the identities of both receivers and senders. In a nutshell, the bulletin board is composed by two parts: A web server implemented as Tor hidden service and, a command line client that permits to upload and download data from the server.
+This repository holds a prototype implementation of the authenticated and deniable anonymous messaging system powered by a Deniable Matchmaking Encryption (DME) scheme. It comprises two parts: a web server and a command line client. Concretely, the web server implemented as a service of the anonymous bulletin board is utilized to store data and provides a simple PRST API that allows the clients to upload and download data anonymously. The role of the clients is to serve users to post and read messages. Additionally, in order to cheat the coercer, users can also use the clients to generate a fake random input, possibly some parameters required in the encryption or the key. Particularly, in the implementation of the prototype development, we adopt the anonymous bulletin board over the Tor network (http://bjopwtc2f3umlark.onion/) created by Ateniese et al. in "Match Me if You Can: Matchmaking Encryption and Its Applications." Users can enjoy authenticated and deniable anonymous communication by utilizing the client application to play with the running service in the anonymous bulletin board.
 
-A user that wants to post a message to the bulletin board can use the command line to encrypt it (using their IB-ME encryption key and an identity string policy for the intended receiver), and upload the ciphertext on the web server using the Tor network. These ciphertexts are available to anyone.
+A user who wants to post a message to the anonymous bulletin board can use the client to encrypt it (using his/her DME encryption key and an identity string policy for the intended receiver, possibly also requiring to provide a fake message and an identity string policy of the fake receiver), and upload the ciphertext on the anonymous bulletin board. These ciphertexts are available to anyone. 
 
 A receiver can now use the client to download all the ciphertexts and try to decrypt each one, using the receiver's decryption key and the sender's identity policy. The client will report to the user the outcome of the decryption phase, showing all the successfully decrypted messages.
 
-You can use the client application to play with the running service in [http://bjopwtc2f3umlark.onion/](http://bjopwtc2f3umlark.onion/). We created a key file so you can use the encryption and decryption keys of identities "alice", "bob", "charlie", and "zelda". We have the keys for identity "authors", not included in the key file. There is a message from us for each identity. Please, leave us a message too!
+In the face of coercion, the sender can use the client to obtain a fake input, including a fake encryption key and fake random coins, to cheat the coercer if the generation of his/her ciphertext uses a fake message and an identity string policy of the fake receiver. The fake receiver can also get a fake decryption key from the client, using his/her DME decryption key, the sender's identity string policy and the ciphertext.
+
+You can use the client application to play with the running service in http://bjopwtc2f3umlark.onion/ . Note that the anonymous bulletin board may not be connected. If so, you can run the local bulletin board http://localhost:5000. The local bulletin board service is the same as the anonymous one except it cannot protect users' identity since it does not call the Tor network. That is, you can only enjoy authenticated and deniable communication by utilizing the client application to play with the running service in the local bulletin board. Here, we stress that running a local bulletin board service is also sufficient to test the desired functionalities of authentication and deniability, where these functionalities are provided by the proposed new cryptographic primitive called deniable matchmaking encryption. 
 
 ## Client application
 
 ### Dependencies
 
-The client application is built with Python 3.6 and depends on [Charm Crypto](https://jhuisi.github.io/charm/index.html) and the `click` and `requests` libraries. It also requires Tor.
+The client application is built with Python 3.7 and depends on [Charm Crypto](https://jhuisi.github.io/charm/index.html) and the `click` and `requests` libraries. It also requires Tor.
 
 For installing Charm Crypto, follow [these instructions](https://jhuisi.github.io/charm/install_source.html).
 
